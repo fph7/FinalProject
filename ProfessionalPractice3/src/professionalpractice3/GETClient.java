@@ -23,6 +23,85 @@ public class GETClient {
 
 static String localServer = "127.0.0.1";
     
+    static String updateStocks(String customerID, String stockSymbol, int shares, String price) throws ClientProtocolException, IOException {
+        BufferedReader responseBody = null;
+        HttpClient client = HttpClientBuilder.create().build();
+
+        try {
+            //Define a HttpGet request
+            HttpGet request = new HttpGet("http://"+localServer);
+
+            //Set Http Headers
+            request.addHeader("Accept" , "application/xml");
+            request.addHeader("Type", "update stocks");
+            request.addHeader("Customer", customerID);
+            request.addHeader("Symbol", stockSymbol);
+            request.addHeader("Shares", Integer.toString(shares));
+            request.addHeader("Price", price);
+
+            //Invoke the service
+            HttpResponse response = client.execute(request);
+
+            //Verify if the response is valid
+            int statusCode = response.getStatusLine().getStatusCode();
+            //System.out.println(statusCode);
+            if(statusCode!=200) {
+                throw new RuntimeException("Failed with HTTP error code .... : " + statusCode);
+            } else {
+                //If valid, get the response
+                responseBody = new BufferedReader (new InputStreamReader(response.getEntity().getContent()));
+                String line = responseBody.readLine();
+                return line;
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("Invalid input");
+            return "";
+        } finally {
+            if(responseBody!=null)
+                responseBody.close();
+        }
+    }
+
+    static String getBalance(String customerID) throws ClientProtocolException, IOException {
+        BufferedReader responseBody = null;
+        HttpClient client = HttpClientBuilder.create().build();
+
+        try {
+            //Define a HttpGet request
+            HttpGet request = new HttpGet("http://"+localServer);
+
+            //Set Http Headers
+            request.addHeader("Accept" , "application/xml");
+            request.addHeader("Type", "balance");
+            request.addHeader("Customer", customerID);
+
+            //Invoke the service
+            HttpResponse response = client.execute(request);
+
+            //Verify if the response is valid
+            int statusCode = response.getStatusLine().getStatusCode();
+            //System.out.println(statusCode);
+            if(statusCode!=200) {
+                throw new RuntimeException("Failed with HTTP error code .... : " + statusCode);
+            } else {
+                //If valid, get the response
+                responseBody = new BufferedReader (new InputStreamReader(response.getEntity().getContent()));
+                String line = responseBody.readLine();
+                return line;
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("Invalid input");
+            return "";
+        } finally {
+            if(responseBody!=null)
+                responseBody.close();
+        }
+    }
+    
     static String getRequestSymbol(String input) throws ClientProtocolException, IOException {
         BufferedReader responseBody = null;
         HttpClient client = HttpClientBuilder.create().build();
@@ -61,10 +140,85 @@ static String localServer = "127.0.0.1";
         }
     }
     
-        static String getRequest(String input) throws ClientProtocolException, IOException {
+    static String getTransactions(String customerID) throws ClientProtocolException, IOException {
         BufferedReader responseBody = null;
         HttpClient client = HttpClientBuilder.create().build();
 
+        try {
+            //Define a HttpGet request
+            HttpGet request = new HttpGet("http://"+localServer);
+
+            //Set Http Headers
+            request.addHeader("Accept" , "application/xml");
+            request.addHeader("Type", "transactions");
+            request.addHeader("Customer", customerID);
+
+            //Invoke the service
+            HttpResponse response = client.execute(request);
+
+            //Verify if the response is valid
+            int statusCode = response.getStatusLine().getStatusCode();
+            //System.out.println(statusCode);
+            if(statusCode!=200) {
+                throw new RuntimeException("Failed with HTTP error code .... : " + statusCode);
+            } else {
+                //If valid, get the response
+                responseBody = new BufferedReader (new InputStreamReader(response.getEntity().getContent()));
+                String line = responseBody.readLine();
+                return line;
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("Invalid input");
+            return "";
+        } finally {
+            if(responseBody!=null)
+                responseBody.close();
+        }
+    }
+    
+    static String getPortfolio(String customerID) throws ClientProtocolException, IOException {
+        BufferedReader responseBody = null;
+        HttpClient client = HttpClientBuilder.create().build();
+
+        try {
+            //Define a HttpGet request
+            HttpGet request = new HttpGet("http://"+localServer);
+
+            //Set Http Headers
+            request.addHeader("Accept" , "application/xml");
+            request.addHeader("Type", "portfolio");
+            request.addHeader("Customer", customerID);
+
+            //Invoke the service
+            HttpResponse response = client.execute(request);
+
+            //Verify if the response is valid
+            int statusCode = response.getStatusLine().getStatusCode();
+            //System.out.println(statusCode);
+            if(statusCode!=200) {
+                throw new RuntimeException("Failed with HTTP error code .... : " + statusCode);
+            } else {
+                //If valid, get the response
+                responseBody = new BufferedReader (new InputStreamReader(response.getEntity().getContent()));
+                String line = responseBody.readLine();
+                return line;
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("Invalid input");
+            return "";
+        } finally {
+            if(responseBody!=null)
+                responseBody.close();
+        }
+    }
+    
+    static String getRequest(String input) throws ClientProtocolException, IOException {
+        BufferedReader responseBody = null;
+        HttpClient client = HttpClientBuilder.create().build();
         try {
             //Define a HttpGet request
             HttpGet request = new HttpGet("http://"+input);
@@ -104,8 +258,7 @@ static String localServer = "127.0.0.1";
     
     public static void main(String[] args) throws ClientProtocolException, IOException {
       
-        String response = getRequestSymbol("GOOG");
+        String response = getPortfolio("1");
         System.out.println(response);
-        System.out.println("Job done!");
     }
 }

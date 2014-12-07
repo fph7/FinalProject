@@ -158,7 +158,21 @@ static Connection connection;
               try {
                     ResultSet rs = stmt.executeQuery(query);
                     rs.next();
+                    try
+                    {
                     stockID = rs.getString("stockID");
+                    }
+                    catch (SQLException e){
+                    query = "SELECT MAX(stockID) as maxID FROM tradeaccountdata.stock";
+                    rs = stmt.executeQuery(query);
+                    rs.next();
+                    stockID = Integer.toString(Integer.parseInt(rs.getString("maxID"))+1);
+                    query = "INSERT INTO tradeaccountdata.stock (stockID, stockSymbol, shares, price, customerID) VALUES ('"+stockID+"', '"+symbol+"', '0', '"+price+"', '"+customerID+"')";
+                    stmt.execute(query);
+                    query = "select * from tradeaccountdata.stock where customerID="+customerID+" and stockSymbol=\""+symbol+"\"";
+                    rs = stmt.executeQuery(query);
+                    rs.next();
+                    }
                     currentShares = rs.getString("shares");
                     int newShares = Integer.parseInt(currentShares)+Integer.parseInt(shares);
                     if(newShares >= 0)//didn't attempt to sell more shares then owned

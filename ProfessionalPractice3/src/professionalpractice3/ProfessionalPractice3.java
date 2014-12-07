@@ -109,8 +109,10 @@ static ArrayList<String> validSymbols = new ArrayList<String>(Arrays.asList("FB"
                           fieldText = GETClient.getPortfolio(fieldText);
                       } catch (IOException ex) {
                           Logger.getLogger(ProfessionalPractice3.class.getName()).log(Level.SEVERE, null, ex);
-                      }
+                      }                       
             g.drawString("Symbol     Count       Price        Value", 10, 30);
+            if(fieldText != null)
+            {
             String tokens[] = fieldText.split(",");
             for(int i = 0; i < tokens.length; i+=3)
                 {  
@@ -119,7 +121,9 @@ static ArrayList<String> validSymbols = new ArrayList<String>(Arrays.asList("FB"
                 g.drawString("$"+tokens[i+2], 118, 42+(i/3)*12);
                 g.drawString("$"+Float.toString(Float.parseFloat(tokens[i+1])*Float.parseFloat(tokens[i+2])), 172, 42+(i/3)*12);
                 }
-            
+            }
+            else
+                g.drawString("Empty portfolio!", 10, 42);                      
             }
          else
             {
@@ -151,6 +155,8 @@ static ArrayList<String> validSymbols = new ArrayList<String>(Arrays.asList("FB"
                           Logger.getLogger(ProfessionalPractice3.class.getName()).log(Level.SEVERE, null, ex);
                       }
             g.drawString("Symbol     Count       Date", 10, 30);
+            if(fieldText != null)
+            {
             String tokens[] = fieldText.split(",");
             for(int i = 0; i < tokens.length; i+=3)
                 {  
@@ -158,6 +164,9 @@ static ArrayList<String> validSymbols = new ArrayList<String>(Arrays.asList("FB"
                 g.drawString(tokens[i+1], 64, 42+(i/3)*12);
                 g.drawString(tokens[i+2], 118, 42+(i/3)*12);
                 }
+            }
+            else
+               g.drawString("No transactions!", 10, 42); 
             
             }
          else
@@ -202,6 +211,8 @@ static ArrayList<String> validSymbols = new ArrayList<String>(Arrays.asList("FB"
                   closing = getValue(GETClient.getRequestSymbol(symbol), "last");
                   balance = GETClient.getBalance(customerID);
               } catch (IOException ex) {}
+            if(!balance.equals("Invalid customer ID!"))
+            {
             float balanceF = Float.parseFloat(balance);
             if(balanceF > 0)
                 {
@@ -222,6 +233,9 @@ static ArrayList<String> validSymbols = new ArrayList<String>(Arrays.asList("FB"
                 else
                     buyDisplayL.setText("Invalid Funds!");
                 }
+          }
+          else
+              buyDisplayL.setText("Invalid customer ID!");  
             }
           }
       }

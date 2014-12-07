@@ -28,11 +28,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -102,17 +100,19 @@ static Connection connection;
               try {
                     ResultSet rs = stmt.executeQuery(query);
                     response = "";
-                    rs.next();
-                    response += rs.getString(2)+',';
-                    response += rs.getString(3)+',';
-                    response += rs.getString(4);
+                    if(rs.next())
+                    {
+                    response += rs.getString("stockSymbol")+',';
+                    response += rs.getString("shares")+',';
+                    response += rs.getString("price");
                     while (rs.next())
                         {
                             response += ',';
-                            response += rs.getString(2)+',';
-                            response += rs.getString(3)+',';
-                            response += rs.getString(4);
+                            response += rs.getString("stockSymbol")+',';
+                            response += rs.getString("shares")+',';
+                            response += rs.getString("price");
                         }
+                    }
                     //select * from tradeaccountdata.stock where customerID=1
                   } catch (SQLException ex) {
                       Logger.getLogger(SimpleHttpServer.class.getName()).log(Level.SEVERE, null, ex);
@@ -134,39 +134,44 @@ static Connection connection;
                     response = rs.getString("accountBalance");
                   } catch (SQLException ex) {
                       Logger.getLogger(SimpleHttpServer.class.getName()).log(Level.SEVERE, null, ex);
+                      response = "Invalid customer ID!";
                   }
           } catch (SQLException ex) {
               Logger.getLogger(SimpleHttpServer.class.getName()).log(Level.SEVERE, null, ex);
           }   
       }
       else if(type.equals("update stocks"))
-      {
+      {                             
           String customerID = headers.get("Customer").get(0);//id of customer
           String symbol = headers.get("Symbol").get(0);//stock symbol
           String shares = headers.get("Shares").get(0);//number of shares bought
           String price = headers.get("Price").get(0);//cost paid and new cost of shares
           float profit = -1*Float.parseFloat(price)*Integer.parseInt(shares);
           float balance = profit;//amount balance will change by
-          
+          ResultSet rs;
           String currentShares = "";
           String stockID = "";
+          String transactionID = "1";
           
           query = "select * from tradeaccountdata.stock where customerID="+customerID+" and stockSymbol=\""+symbol+"\"";
           Statement stmt;
           try {//updates shares and price
-              stmt = connection.createStatement();
-              try {
-                    ResultSet rs = stmt.executeQuery(query);
+              stmt = connection.createStatement();                             
+              try {                 
+                    rs = stmt.executeQuery(query);
                     rs.next();
                     try
                     {
                     stockID = rs.getString("stockID");
                     }
                     catch (SQLException e){
+
                     query = "SELECT MAX(stockID) as maxID FROM tradeaccountdata.stock";
                     rs = stmt.executeQuery(query);
                     rs.next();
-                    stockID = Integer.toString(Integer.parseInt(rs.getString("maxID"))+1);
+                    stockID = rs.getString("maxID");                    
+                    if(stockID == null)
+                        stockID = "1";                       
                     query = "INSERT INTO tradeaccountdata.stock (stockID, stockSymbol, shares, price, customerID) VALUES ('"+stockID+"', '"+symbol+"', '0', '"+price+"', '"+customerID+"')";
                     stmt.execute(query);
                     query = "select * from tradeaccountdata.stock where customerID="+customerID+" and stockSymbol=\""+symbol+"\"";
@@ -186,16 +191,21 @@ static Connection connection;
                         profit += Float.parseFloat(priorProfit);
                         balance += Float.parseFloat(priorBalance);
                         if(balance >= 0)
-                            {
+                            {                            
+                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            Calendar cal = Calendar.getInstance();
+                            String date = dateFormat.format(cal.getTime());                           
                             query = "SELECT MAX(transactionID) as maxID FROM tradeaccountdata.transaction";
                             rs = stmt.executeQuery(query);
                             rs.next();
-                            String transactionID = Integer.toString(Integer.parseInt(rs.getString("maxID"))+1);
-                            
-                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            Calendar cal = Calendar.getInstance();
-                            String date = dateFormat.format(cal.getTime());
-                            System.out.println(date); //2014/08/06 16:00:2
+                            transactionID = rs.getString("maxID");
+                            if(transactionID == null)
+                                transactionID = "1";
+                            else
+                            {
+                            int temp = Integer.parseInt(transactionID);
+                            transactionID = Integer.toString(temp+1);
+                            }
                             query = "INSERT INTO tradeaccountdata.transaction (transactionID, stock, sharesBought, datetime, customerID) VALUES ('"+transactionID+"', '"+symbol+"', '"+shares+"', '"+date+"', '"+customerID+"')";
                             stmt.execute(query);
                             //INSERT INTO `tradeaccountdata`.`transaction` (`transactionID`, `stock`, `sharesBought`, `datetime`, `customerID`) VALUES ('1', 'FB', '1', '1', '1');
@@ -231,15 +241,15 @@ static Connection connection;
                     ResultSet rs = stmt.executeQuery(query);
                     response = "";
                     rs.next();
-                    response += rs.getString(2)+',';
-                    response += rs.getString(3)+',';
-                    response += rs.getString(4);
+                    response += rs.getString("stock")+',';
+                    response += rs.getString("sharesBought")+',';
+                    response += rs.getString("datetime");
                     while (rs.next())
                         {
                             response += ',';
-                            response += rs.getString(2)+',';
-                            response += rs.getString(3)+',';
-                            response += rs.getString(4);
+                            response += rs.getString("stock")+',';
+                            response += rs.getString("sharesBought")+',';
+                            response += rs.getString("datetime");
                         }
                     //select * from tradeaccountdata.stock where customerID=1
                   } catch (SQLException ex) {

@@ -68,7 +68,7 @@ static Connection connection;
     Connection conn = null;
     Properties connectionProps = new Properties();
     connectionProps.put("user", userName);
-    connectionProps.put("password", password);
+    //connectionProps.put("password", password);
 
         conn = DriverManager.getConnection(
                    "jdbc:" + "mysql" + "://" +
@@ -171,7 +171,9 @@ static Connection connection;
                     rs.next();
                     stockID = rs.getString("maxID");                    
                     if(stockID == null)
-                        stockID = "1";                       
+                        stockID = "1"; 
+                    else
+                        stockID = Integer.toString(Integer.parseInt(stockID)+1);
                     query = "INSERT INTO tradeaccountdata.stock (stockID, stockSymbol, shares, price, customerID) VALUES ('"+stockID+"', '"+symbol+"', '0', '"+price+"', '"+customerID+"')";
                     stmt.execute(query);
                     query = "select * from tradeaccountdata.stock where customerID="+customerID+" and stockSymbol=\""+symbol+"\"";
